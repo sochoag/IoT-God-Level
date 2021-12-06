@@ -1,0 +1,96 @@
+version: '3.8'
+
+volumes:
+  vol-emqx-data:
+    name: foo-emqx-data
+  vol-emqx-etc:
+    name: foo-emqx-etc
+  vol-emqx-log:
+    name: foo-emqx-log
+
+services:
+  mongo:
+    container_name: mongo
+    image: mongo:bionic
+    restart: always
+    ports:
+      - 27017:27017
+
+    environment:
+      TZ: "America/Guayaquil"
+      MONGO_INITDB_ROOT_USERNAME: "devuser"
+      MONGO_INITDB_ROOT_PASSWORD: "devpassword"
+    volumes:
+      - "./mongodata:/data/db"
+
+  emqx:
+    container_name: emqx
+    image: emqx/emqx:latest
+    restart: always
+    ports:
+      - 18083:18083
+      - 8083:8083
+      - 1883:1883
+
+    volumes:
+      - vol-emqx-data:/opt/emqx/data
+      - vol-emqx-etc:/opt/emqx/etc
+      - vol-emqx-log:/opt/emqx/log
+
+    links:
+      - mongo
+
+    environment:
+      EMQX_NAME: sochoag
+      EMQX_HOST: 127.0.0.1
+
+      TZ: "America/Guayaquil"
+
+      # Default dash pass
+      # dashboard.default_user.login = admin
+      EMQX_DASHBOARD__DEFAULT_USER__LOGIN: "sochoag"
+      # dashboard.default_user.password = public
+      EMQX_DASHBOARD__DEFAULT_USER__PASSWORD: "140597"
+
+      # Auth
+      # Mongo connection
+      EMQX_ALLOW_ANONYMOUS: "false"
+      EMQX_AUTH__MONGO__TYPE: single
+      EMQX_AUTH__MONGO__SERVER: "mongo:27017"
+      EMQX_AUTH__MONGO__POOL: 8
+
+      EMQX_AUTH__MONGO__LOGIN: "devuser"
+      EMQX_AUTH__MONGO__PASSWORD: "devpassword"
+      EMQX_AUTH__MONGO__AUTH_SOURCE: admin
+
+      EMQX_AUTH__MONGO__DATABASE: "IoTGL"
+      EMQX_AUTH__MONGO__AUTH_QUERY__COLLECTION: "emqxauthrules"
+      EMQX_AUTH__MONGO__AUTH_QUERY__PASSWORD_HASH: sha256
+      EMQX_AUTH__MONGO__AUTH_QUERY__SELECTOR: "username=%u"
+      EMQX_AUTY__MONGO__AUTH_QUERY__PASSWORD_FIELD: "password"
+
+      # ACL (Access Control List)
+      EMQX_NOMATCH: "deny"
+      EMQX_AUTH__MONGO__ACL_QUERY: "on"
+      EMQX_AUTH__MONGO__ACL_QUERY__COLLECTION: "emqxauthrules"
+      EMQX_AUTH__MONGO__ACL_QUERY__SELECTOR: "username=%u "
+
+      # Super Users (Desactivado)
+      EMQX_AUTH__MONGO__SUPER_QUERY: "off"
+      EMQX_AUTH__MONGO__SUPER_QUERY__COLLECTION: "emqxauthrules"
+      EMQX_AUTH__MONGO__SUPER_QUERY__SUPER_FIELD: "is_superuser"
+      EMQX_AUTH__MONGO__SUPER_QUERY__SELECTOR: "username=%u"
+      
+      # Pluggings por defecto
+      EMQX_LOADED_PLUGINS: "emqx_recon,emqx_retainer,emqx_management,emqx_dashboard, emqx_auth_mongo"
+
+      # listener.tcp.internal.max_connections = 1024000
+      EMQX_LISTENER__TCP__INTERNAL__MAX_CONNECTIONS: 20
+      # listener.tcp.external.max_connections = 1024000
+      EMQX_LISTENER__TCP__EXTERNAL__MAX_CONNECTIONS: 20
+      # listener.ws.external.max_connections = 102400
+      EMQX_LISTENER__WS__EXTERNAL__MAX_CONNECTIONS: 20
+      # listener.ssl.external.max_connections = 102400
+      EMQX_LISTENER__SSL__EXTERNAL__MAX_CONNECTIONS: 20
+      # listener.wss.external.max_connections = 102400
+      EMQX_LISTENER__WSS__EXTERNAL__MAX_CONNECTIONS: 20
