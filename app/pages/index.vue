@@ -1,7 +1,7 @@
-<template>
-  <Tutorial/>
-</template>
-
 <script>
-export default {}
+export default {
+  created() {
+    $nuxt.$router.push('/dashboard')
+  },
+}
 </script>

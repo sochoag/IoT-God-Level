@@ -1,5 +1,6 @@
 <template>
   <div class="wrapper" :class="{ 'nav-open': $sidebar.showSidebar }">
+
     <notifications></notifications>
 
     <side-bar
@@ -13,14 +14,45 @@
           :link="{
             name: 'Dashboard',
             icon: 'tim-icons icon-chart-pie-36',
-            path: '/'
+            path: '/dashboard'
           }"
         >
         </sidebar-item>
+
+        <sidebar-item
+          :link="{
+            name: 'Devices',
+            icon: 'tim-icons icon-chart-pie-36',
+            path: '/devices'
+          }"
+        >
+        </sidebar-item>
+
+        <sidebar-item
+          :link="{
+            name: 'Alarms',
+            icon: 'tim-icons icon-chart-pie-36',
+            path: '/alarms'
+          }"
+        >
+        </sidebar-item>
+
+        <sidebar-item
+          :link="{
+            name: 'Templates',
+            icon: 'tim-icons icon-chart-pie-36',
+            path: '/templates'
+          }"
+        >
+        </sidebar-item>
+
       </template>
     </side-bar>
-    <!--Share plugin (for demo purposes). You can remove it if don't plan on using it-->
+
+    <!--Share ptugin (for dene purposes). You can remove it if don't plan on using it-->
+
     <sidebar-share :background-color.sync="sidebarBackground"> </sidebar-share>
+
     <div class="main-panel" :data="sidebarBackground">
       <dashboard-navbar></dashboard-navbar>
       <router-view name="header"></router-view>
